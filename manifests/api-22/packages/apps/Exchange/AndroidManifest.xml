@@ -1,0 +1,156 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Copyright (C) 2008 The Android Open Source Project
+
+     Licensed under the Apache License, Version 2.0 (the "License");
+     you may not use this file except in compliance with the License.
+     You may obtain a copy of the License at
+
+          http://www.apache.org/licenses/LICENSE-2.0
+
+     Unless required by applicable law or agreed to in writing, software
+     distributed under the License is distributed on an "AS IS" BASIS,
+     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+     See the License for the specific language governing permissions and
+     limitations under the License.
+-->
+
+<manifest
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    package="com.android.exchange"
+    android:versionCode="500065" >
+
+    <uses-permission
+        android:name="android.permission.RECEIVE_BOOT_COMPLETED"/>
+    <uses-permission
+        android:name="android.permission.ACCESS_NETWORK_STATE"/>
+    <uses-permission
+        android:name="android.permission.INTERNET"/>
+    <uses-permission
+        android:name="android.permission.VIBRATE"/>
+    <uses-permission
+        android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+    <uses-permission
+        android:name="android.permission.GET_ACCOUNTS" />
+    <uses-permission
+        android:name="android.permission.MANAGE_ACCOUNTS" />
+    <uses-permission
+        android:name="android.permission.AUTHENTICATE_ACCOUNTS" />
+    <uses-permission
+        android:name="android.permission.READ_SYNC_SETTINGS" />
+    <uses-permission
+        android:name="android.permission.WRITE_SYNC_SETTINGS" />
+
+    <uses-permission
+        android:name="android.permission.READ_CONTACTS"/>
+    <uses-permission
+        android:name="android.permission.WRITE_CONTACTS"/>
+    <uses-permission
+        android:name="android.permission.READ_CALENDAR"/>
+    <uses-permission
+        android:name="android.permission.WRITE_CALENDAR"/>
+    <uses-permission
+        android:name="android.permission.USE_CREDENTIALS"/>
+
+    <!-- Only required if a store implements push mail and needs to keep network open -->
+    <uses-permission
+        android:name="android.permission.WAKE_LOCK"/>
+    <uses-permission
+        android:name="android.permission.READ_PHONE_STATE"/>
+
+    <uses-permission
+        android:name="com.android.email.permission.READ_ATTACHMENT"/>
+    <uses-permission
+        android:name="com.android.email.permission.ACCESS_PROVIDER"/>
+
+    <uses-sdk android:targetSdkVersion="19" android:minSdkVersion="14" />
+
+    <!-- additional uses -->
+
+    <application
+        android:icon="@mipmap/icon"
+        android:label="@string/app_name"
+        android:name="Exchange"
+        android:requiredAccountType="com.android.exchange"
+        android:theme="@android:style/Theme.Holo.Light"
+        >
+
+        <service
+                android:name="com.android.exchange.service.EasService"
+                android:exported="true">
+            <intent-filter>
+                <action
+                        android:name="com.android.email.EXCHANGE_INTENT" />
+            </intent-filter>
+
+        </service>
+
+        <!--Required stanza to register the EAS EmailSyncAdapterService with SyncManager -->
+        <service
+            android:name="com.android.exchange.service.EmailSyncAdapterService"
+            android:exported="true">
+            <intent-filter>
+                <action
+                    android:name="android.content.SyncAdapter" />
+            </intent-filter>
+            <meta-data android:name="android.content.SyncAdapter"
+                       android:resource="@xml/syncadapter_email" />
+        </service>
+
+        <!--Required stanza to register the EAS ContactsSyncAdapterService with SyncManager -->
+        <service
+            android:name="com.android.exchange.service.ContactsSyncAdapterService"
+            android:exported="true">
+            <intent-filter>
+                <action
+                    android:name="android.content.SyncAdapter" />
+            </intent-filter>
+            <meta-data android:name="android.content.SyncAdapter"
+                       android:resource="@xml/syncadapter_contacts" />
+        </service>
+
+        <!--Required stanza to register the EAS CalendarSyncAdapterService with SyncManager -->
+        <service
+            android:name="com.android.exchange.service.CalendarSyncAdapterService"
+            android:exported="true">
+            <intent-filter>
+                <action
+                    android:name="android.content.SyncAdapter" />
+            </intent-filter>
+            <meta-data android:name="android.content.SyncAdapter"
+                       android:resource="@xml/syncadapter_calendar" />
+        </service>
+
+        <provider
+            android:name="com.android.exchange.provider.ExchangeDirectoryProvider"
+            android:authorities="com.android.exchange.directory.provider"
+            android:readPermission="android.permission.READ_CONTACTS"
+            android:multiprocess="false"
+            android:exported="true"
+            >
+          <meta-data
+              android:name="android.content.ContactDirectory"
+              android:value="true"/>
+        </provider>
+
+        <activity android:name=".EasCertificateRequestor">
+            <intent-filter>
+                <action android:name="com.android.email.EXCHANGE_REQUEST_CERT" />
+                <data android:scheme="eas" android:path="/certrequest" />
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </activity>
+        <activity android:name=".SettingsRedirector">
+            <intent-filter>
+                <action android:name="android.intent.action.MANAGE_NETWORK_USAGE" />
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </activity>
+
+        <receiver android:name="ExchangeBroadcastReceiver">
+            <intent-filter>
+                <action android:name="android.accounts.LOGIN_ACCOUNTS_CHANGED" />
+            </intent-filter>
+        </receiver>
+
+    </application>
+</manifest>
