@@ -1,0 +1,125 @@
+<?xml version="1.0" encoding="utf-8" standalone="no"?>
+<!--
+ * Copyright (c) 2015, Motorola Mobility LLC
+ * All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are met:
+ *     - Redistributions of source code must retain the above copyright
+ *       notice, this list of conditions and the following disclaimer.
+ *     - Redistributions in binary form must reproduce the above copyright
+ *       notice, this list of conditions and the following disclaimer in the
+ *       documentation and/or other materials provided with the distribution.
+ *     - Neither the name of Motorola Mobility nor the
+ *       names of its contributors may be used to endorse or promote products
+ *       derived from this software without specific prior written permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+ * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO,
+ * THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
+ * PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL MOTOROLA MOBILITY LLC BE LIABLE
+ * FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+ * DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+ * OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+ * HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+ * LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+ * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH
+ * DAMAGE.
+-->
+
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:androidprv="http://schemas.android.com/apk/prv/res/android"
+    package="com.android.service.ims.presence"
+    android:sharedUserId="android.uid.phone"
+    coreApp="true">
+
+    <uses-sdk android:minSdkVersion="19"/>
+
+    <permission android:name="com.android.rcs.eab.permission.READ_WRITE_EAB"
+            android:protectionLevel="signatureOrSystem" />
+
+    <protected-broadcast android:name="android.provider.rcs.eab.EAB_NEW_CONTACT_INSERTED" />
+    <protected-broadcast android:name="com.android.service.ims.presence.capability_polling_retry" />
+    <protected-broadcast android:name="com.android.service.ims.presence.periodical_capability_discovery" />
+
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
+    <uses-permission android:name="android.permission.BROADCAST_STICKY"/>
+    <uses-permission android:name="android.permission.INTERACT_ACROSS_USERS"/>
+    <uses-permission android:name="android.permission.READ_CONTACTS"/>
+    <uses-permission android:name="android.permission.WRITE_CONTACTS"/>
+    <uses-permission android:name="android.permission.READ_PHONE_STATE"/>
+    <uses-permission android:name="android.permission.READ_PRIVILEGED_PHONE_STATE"/>
+    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED"/>
+    <uses-permission android:name="android.permission.GET_ACCOUNTS" />
+    <uses-permission android:name="com.android.rcs.eab.permission.READ_WRITE_EAB"/>
+    <uses-permission android:name="android.permission.READ_PROFILE"/>
+    <uses-permission android:name="com.android.ims.rcs.permission.STATUS_CHANGED"/>
+    <uses-permission android:name="com.android.ims.permission.PRESENCE_ACCESS"/>
+
+    <application
+        android:label="@string/app_label"
+        android:singleUser="true"
+        android:process="com.android.ims.rcsservice">
+
+        <uses-library android:name="com.android.ims.rcsmanager"
+            android:required="true"/>
+
+        <service
+            android:name=".PollingService"
+            android:excludeFromRecents="true"
+            android:singleUser="true"
+            android:permission="com.android.ims.permission.PRESENCE_ACCESS">
+        </service>
+
+        <receiver android:name=".DeviceBoot" androidprv:systemUserOnly="true">
+            <intent-filter android:priority="103">
+                 <action android:name="com.android.ims.ACTION_PUBLISH_STATUS_CHANGED"/>
+                 <action android:name="android.intent.action.BOOT_COMPLETED"/>
+            </intent-filter>
+        </receiver>
+
+        <receiver android:name=".DeviceShutdown" androidprv:systemUserOnly="true">
+            <intent-filter>
+                 <action android:name="android.intent.action.ACTION_SHUTDOWN"/>
+            </intent-filter>
+        </receiver>
+
+        <receiver android:name=".AlarmBroadcastReceiver"
+            androidprv:systemUserOnly="true"
+            android:permission="com.android.ims.permission.PRESENCE_ACCESS">
+            <intent-filter>
+                <action android:name="com.android.service.ims.presence.periodical_capability_discovery"/>
+                <action android:name="com.android.service.ims.presence.capability_polling_retry"/>
+                <action android:name="android.provider.rcs.eab.EAB_NEW_CONTACT_INSERTED" />
+            </intent-filter>
+        </receiver>
+
+        <receiver android:name=".PresenceBroadcastReceiver"
+            androidprv:systemUserOnly="true"
+            android:permission="com.android.ims.permission.PRESENCE_ACCESS">
+             <intent-filter>
+                 <action android:name="com.android.ims.ACTION_PUBLISH_STATUS_CHANGED"/>
+             </intent-filter>
+        </receiver>
+
+        <service android:name=".PersistService"
+          android:exported="false"
+          android:permission="com.android.ims.permission.PRESENCE_ACCESS">
+            <intent-filter>
+                <action android:name="com.android.ims.ACTION_PRESENCE_CHANGED"/>
+            </intent-filter>
+        </service>
+
+        <service
+            android:name="com.android.service.ims.presence.EABService"
+            android:enabled="true">
+        </service>
+
+        <provider
+            android:name=".EABProvider"
+            android:permission="com.android.rcs.eab.permission.READ_WRITE_EAB"
+            android:exported="true"
+            android:enabled="true"
+            android:authorities="com.android.rcs.eab" />
+    </application>
+</manifest>
