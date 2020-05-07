@@ -108,6 +108,5 @@ operations violate it.<br>
 
 **Paper**<br>
 For technical details and evaluation results, please refer to our publication:<br>
-> On Demystifying the Android Application Framework: Re-Visiting Android Permission Specification Analysis<br>
-> Usenix Security 2016<br>
-> https://www.infsec.cs.uni-saarland.de/~derr/publications/pdfs/derr_sec16.pdf
+> [On Demystifying the Android Application Framework: Re-Visiting Android Permission Specification Analysis](https://www.usenix.org/system/files/conference/usenixsecurity16/sec16_paper_backes-android.pdf)<br>
+> Usenix Security 2016
